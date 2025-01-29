@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Google Login</title>
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            text-align: center;
+        }
+        .error {
+            color: red;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Welcome!</h1>
+        <div id="g_id_onload"
+             data-client_id="YOUR_CLIENT_ID"
+             data-context="signin"
+             data-callback="handleCredentialResponse"
+             data-auto_prompt="false">
+        </div>
+
+        <div class="g_id_signin"
+             data-type="standard"
+             data-shape="rectangular"
+             data-theme="outline"
+             data-text="sign_in_with"
+             data-size="large"
+             data-logo_alignment="left">
+        </div>
+
+        <div id="user-info" style="margin-top: 20px;"></div>
+        <div id="error-message" class="error"></div>
+    </div>
+
+    <script>
+        function handleCredentialResponse(response) {
+            const userInfo = document.getElementById('user-info');
+            const errorMessage = document.getElementById('error-message');
+
+            try {
+                // فك تشفير بيانات المستخدم من JWT
+                const base64Url = response.credential.split('.')[1];
+                const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+                const payload = JSON.parse(atob(base64));
+
+                // عرض بيانات المستخدم
+                userInfo.innerHTML = `
+                    <h2>Welcome, ${payload.name}!</h2>
+                    <img src="${payload.picture}" alt="User Image" style="border-radius: 50%; width: 100px; height: 100px;" />
+                    <p>Email: ${payload.email}</p>
+                `;
+                errorMessage.innerHTML = ''; // إزالة رسالة الخطأ
+            } catch (error) {
+                console.error('Error handling login response:', error);
+                errorMessage.textContent = 'Failed to process login. Please try again.';
+            }
+        }
+    </script>
+</body>
+</html>
